@@ -2,12 +2,12 @@ use reqwest;
 use serde_json::Value;
 use std::error::Error;
 
-async fn fetch_latest_tags(image: &str, library: Option<&str>) -> Result<Vec<String>, Box<dyn Error>> {
+async fn fetch_latest_tags(image: Option<&str>, library: Option<&str>) -> Result<Vec<String>, Box<dyn Error>> {
     let mut all_tags = Vec::new();
     let mut next_url = Some(format!(
         "https://hub.docker.com/v2/repositories/{}/{}/tags/?page=1&page_size=1",
         library.unwrap_or("library"),
-        image
+        image.unwrap_or("")
     ));
 
     let client = reqwest::Client::new();
@@ -39,16 +39,16 @@ async fn fetch_latest_tags(image: &str, library: Option<&str>) -> Result<Vec<Str
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let args = std::env::args().collect::<Vec<_>>();
-    let mut image_name = "";
+    let image_name: Option<&str>;
     let mut library_name:Option<&str> = None;
     if args.len() == 1 {
         eprintln!("参数错误");
         eprintln!("Usage: cargo run -- <image_name> [library_name=library]");
         return Ok(());
     } else if args.len() == 2 {
-        image_name = &args[1];
+        image_name = Some(&args[1]);
     } else if args.len() == 3 {
-        image_name = &args[1];
+        image_name = Some(&args[1]);
         library_name = Some(&args[2]);
     } else {
         eprintln!("参数错误");
