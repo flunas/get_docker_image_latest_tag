@@ -58,9 +58,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let tags = match fetch_latest_tags(image_name, library_name).await {
         Ok(tags) => tags,
         Err(e) => {
-            eprintln!("Error: {}, 因为在默认的library中找不到{}镜像", e, args[1]);
-            eprintln!("Usage: cargo run -- {} <如果是个人的镜像,该参数为用户名>", args[1]);
-            return Ok(());
+            if args.len() == 3 {
+                println!("0.1.0");
+                return Ok(());
+            } else {
+                eprintln!("Error: {}, 因为在默认的library中找不到{}镜像", e, args[1]);
+                eprintln!("Usage: cargo run -- {} <如果是个人的镜像,该参数为用户名>", args[1]);
+                return Ok(());
+            }
         }
     };
     if tags.is_empty() {
